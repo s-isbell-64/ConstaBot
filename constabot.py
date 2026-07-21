@@ -1,7 +1,9 @@
 import os
 from dotenv import load_dotenv
 import discord
-#import quote
+import PyDesmos
+from selenium import webdriver
+import time
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
@@ -89,4 +91,26 @@ async def on_message(message):
             if key in message.content.lower():
                 await message.channel.send(math_dict[key])
 
+    if "!graph" in message.content.lower():
+        graph_expression = message.content.lower().replace("!graph", "").strip()
+        if graph_expression:
+            try:
+                G = PyDesmos.Graph()
+                G.append(graph_expression)
+                G.save()
+                options = webdriver.SafariOptions()
+                options.add_argument('headless')
+                driver = webdriver.Safari(options=options)
+                driver.get("file://" + os.path.abspath("temp.html"))
+                time.sleep(2)
+                driver.save_screenshot("out.png")
+                driver.quit()
+                await message.channel.send(file=discord.File('out.png'))
+                os.remove('temp.html')
+                os.remove('out.png')
+            except Exception as e:
+                await message.channel.send(e)
+        else:
+            await message.channel.send("Please provide a mathematical expression to graph after `!graph`.")
+        
 client.run(DISCORD_TOKEN)
