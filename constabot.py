@@ -4,55 +4,20 @@ import discord
 import PyDesmos
 from selenium import webdriver
 import time
+import urllib.parse
+import requests
+
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 LEO_ID = os.getenv("LEO_ID")
+WA_APP_ID = os.getenv("WA_APP_ID")
 
 client = discord.Client(intents=discord.Intents.all())
 
 custom_leo = discord.utils.get(client.emojis, name='leo1')
 custom_scott = discord.utils.get(client.emojis, name='scottie')
 custom_tsa = discord.utils.get(client.emojis, name='tsa')
-
-math_dict = {
-    "math": "Mathematics is a field of knowledge concerned with abstract concepts such as numbers, geometric shapes, sets, functions, and probabilities. It uses logical reasoning and proof to study and establish their properties, often expressed as theorems, formulas, and equations. Mathematics is used to model and solve problems in science, engineering, technology, economics, and everyday life.",
-    "desmos": "Desmos is an advanced graphing calculator implemented as a web application and a mobile application written in TypeScript and JavaScript.",
-    "rational function": "In mathematics, a rational function is any function that can be defined by a rational fraction, which is an algebraic fraction such that both the numerator and the denominator are polynomials. The coefficients of the polynomials need not be rational numbers; they may be taken in any field K. In this case, one speaks of a rational function and a rational fraction over K. The values of the variables may be taken in any field L containing K. Then the domain of the function is the set of the values of the variables for which the denominator is not zero, and the codomain is L.",
-    "function": "In mathematics, a function from a set X to a set Y assigns to each element of X exactly one element of Y. The set X is called the domain of the function and the set Y is called the codomain of the function.",
-    "rational": "In mathematics, a rational number is a number that can be expressed as the quotient or fraction p/q of two integers, a numerator p and a nonzero denominator q. For example, 3/7 is a rational number, as is every integer (for example, -5 = -5/1). The set of all rational numbers is often referred to as \"the rationals\", and is closed under addition, subtraction, multiplication, and division by a nonzero rational number. It is a field under these operations and therefore also called the field of rationals or the field of rational numbers. It is usually denoted by boldface Q, or blackboard bold ℚ.",
-    "graph": "In mathematics, the graph of a function f is the set of ordered pairs (x,y), where f(x) = y. In the common case where x and f(x) are real numbers, these pairs are Cartesian coordinates of points in a plane and often form a curve. The graphical representation of the graph of a function is also known as a plot.",
-    "polynomial": "In mathematics, a polynomial is a mathematical expression consisting of indeterminates (also called variables) and coefficients, that involves only the operations of addition, subtraction, multiplication and exponentiation to nonnegative integer powers, and has a finite number of terms. An example of a polynomial of a single indeterminate x is x^2 - 4x + 7. An example with three indeterminates is x^3 + 2xyz^2 - yz + 1.",
-    "exponential": "In mathematics, the exponential function is the unique real function which maps zero to one and has a derivative everywhere equal to its value. It is denoted e^x or exp x; the latter is preferred when the argument x is a complicated expression. It is called exponential because its argument can be seen as an exponent to which a constant number e ≈ 2.718, the base, is raised. There are several other definitions of the exponential function, which are all equivalent although being of very different nature.",
-    "logarithm": "In mathematics, the logarithm of a number is the exponent by which another fixed value, the base, must be raised to produce that number. For example, the logarithm of 1000 to base 10 is 3, because 1000 is 10 to the 3rd power: 1000 = 103 = 10 × 10 × 10. More generally, if x = by, then y is the logarithm of x to base b, written logb x = y, so log10 1000 = 3. As a single-variable function, the logarithm to base b is the inverse of exponentiation with base b.",
-    "sequence": "In mathematics, a sequence is a collection of objects possibly with repetition, that come in a specified order. Like a set, it contains members (also called elements, or terms). Unlike a set, the same elements can appear multiple times at different positions in a sequence, and unlike a set, the order does matter. The notion of a sequence can be generalized to an indexed family, defined as a function from an arbitrary index set.",
-    "series": "In mathematics, a series is, roughly speaking, an addition of infinitely many terms, one after the other. The study of series is a major part of calculus and its generalization, mathematical analysis. Series are used in most areas of mathematics, even for studying finite structures in combinatorics through generating functions. The mathematical properties of infinite series make them widely applicable in other quantitative disciplines such as physics, computer science, statistics and finance.",
-    "probability": "Probability concerns events and numerical descriptions of how likely they are to occur. The probability of an event is a number between 0 and 1; the larger the probability, the more likely an event is to occur. This number is often expressed as a percentage (%), ranging from 0% to 100%. A simple example is the tossing of a fair (unbiased) coin. Since the coin is fair, the two outcomes (\"heads\" and \"tails\") are both equally probable; the probability of \"heads\" is the same asthe probability of \"tails\". Since no other outcomes are possible,the probability of either \"heads\" or \"tails\" is 1/2 (which could also be written as 0.5 or 50%).",
-    "trig": "Trigonometry (from Ancient Greek τρίγωνον (trígōnon) 'triangle' and μέτρον (métron) 'measure') is a branch of mathematics concerned with relationships between angles and side lengths of triangles. In particular, the trigonometric functions relate the angles of a right triangle with ratios of its side lengths. The field emerged in the Hellenistic world during the 3rd century BC from applications of geometry to astronomical studies. The Greeks focused on the calculation of chords, while mathematicians in India created the earliest-known tables of values for trigonometric ratios (also called trigonometric functions) such as sine.",
-    "sin": "In mathematics, sine and cosine are trigonometric functions of an angle. The sine and cosine of an acute angle are defined in the context of a right triangle: for the specified angle, its sine is the ratio of the length of the side opposite that angle to the length of the longest side of the triangle (the hypotenuse), and the cosine is the ratio of the length of the adjacent leg to that of the hypotenuse. For an angle θ, the sine and cosine functions are denoted as sin(θ) and cos(θ).",
-    "cos": "In mathematics, sine and cosine are trigonometric functions of an angle. The sine and cosine of an acute angle are defined in the context of a right triangle: for the specified angle, its sine is the ratio of the length of the side opposite that angle to the length of the longest side of the triangle (the hypotenuse), and the cosine is the ratio of the length of the adjacent leg to that of the hypotenuse. For an angle θ, the sine and cosine functions are denoted as sin(θ) and cos(θ).",
-    "inverse trig": "In mathematics, the inverse trigonometric functions (occasionally also called antitrigonometric, cyclometric, or arcus functions) are the inverse functions of the trigonometric functions, under suitably restricted domains. Specifically, they are the inverses of the sine, cosine, tangent, cotangent, secant, and cosecant functions, and are used to obtain an angle from any of the angle's trigonometric ratios. Inverse trigonometric functions are widely used in engineering, navigation, physics, and geometry.",
-    "complex": "In mathematics, a complex number is an element of a number system that extends the real numbers with a specific element denoted i, called the imaginary unit and satisfying the equation i^2 = -1. Since no real number satisfies the above equation, i was called an imaginary number by René Descartes. Every complex number can be expressed in the form a+bi, where a and b are real numbers, a is called the real part, and b is called the imaginary part. The set of complex numbers is denoted by either of the symbols ℂ or C. Despite the historical nomenclature, \"imaginary\" numbers are not fictitious: they are no less real mathematically than real numbers, and they are essential to the scientific description of the physical world.",
-    "imaginary": "An imaginary number is the product of a real number and the imaginary unit i, which is defined by its property i^2 =-1. The square of an imaginary number bi is -b^2. For example, 5i is an imaginary number, and its square is -25. The number zero is considered to be both real and imaginary.",
-    "polar": "In mathematics, the polar coordinate system specifies a given point in a plane by using a distance and an angle as its two coordinates. These are the point's distance from a reference point called the pole, and the point's direction from the pole relative to the direction of the polar axis, a ray drawn from the pole. The distance from the pole is called the radial coordinate, radial distance or simply radius, and the angle is called the angular coordinate, polar angle, or azimuth. The pole is analogous to the origin in a Cartesian coordinate system.",
-    "parametric": "In mathematics, a parametric equation expresses several quantities, such as the coordinates of a point, as functions of one or more variables called parameters. In the case of a single parameter, parametric equations are commonly used to express the trajectory of a moving point. For this case, the parameter is often, but not necessarily, time, and the point describes a curve, called a parametric curve. In the case of two parameters, the point describes a surface, called a parametric surface. In all cases, the equations are collectively called a parametric representation, or parametric system, or parameterization (also spelled parametrization, parametrisation) of the object.",
-    "vector": "In mathematics and physics, a vector is a generalization of a single number. It may denote a vector quantity, i.e., physical quantity that cannot be expressed by a single scalar quantity. The term may also be used to refer to elements of vector spaces, that can be added together and multiplied (\"scaled\") by scalars. In some contexts, vectors are tuples, which are finite sequences (of numbers or other objects) of a fixed length.",
-    "conic": "A conic section, conic or a quadratic curve is a curve obtained from a cone's surface intersecting a plane. The three types of conic section are the hyperbola, the parabola, and the ellipse; the circle is a special case of the ellipse, though it was sometimes considered a fourth type. The ancient Greek mathematicians studied conic sections, culminating around 200 BC with Apollonius of Perga's systematic work on their properties.",
-    "spreadsheet": "A spreadsheet is a computer application for computation, organization, analysis and storage of data in tabular form. Spreadsheets were developed as computerized analogs of paper accounting worksheets. The program operates on data entered in cells of a table. Each cell may contain either numeric or text data, or the results of formulas that automatically calculate and display a value based on the contents of other cells. The term spreadsheet may also refer to one such electronic document.",
-    "limit": "In mathematics, a limit is the value that a function (or sequence) approaches as the argument (or index) approaches some value. Limits of functions are essential to calculus and mathematical analysis, and are used to define continuity, derivatives, and integrals. The concept of a limit of a sequence is further generalized to the concept of a limit of a topological net, and is closely related to limit and direct limit in category theory. The limit inferior and limit superior provide generalizations of the concept of a limit which are particularly relevant when the limit at a point may not exist.",
-    "secant": "In geometry, a secant is a line that intersects a curve at a minimum of two distinct points. The word secant comes from the Latin word secare, meaning \"to cut\". In the case of a circle, a secant intersects the circle at exactly two points. A chord is the line segment determined by the two points, that is, the interval on the secant whose ends are the two points.",
-    "tangent": "In geometry, the tangent line (or simply tangent) to a plane curve at a given point is, intuitively, the straight line that \"just touches\" the curve at that point. Leibniz defined it as the line through a pair of infinitely close points on the curve. More precisely, a straight line is tangent to the curve y = f(x) at a point x=c if the line passes through the point (c,f(c)) on the curve and has slope f'(c), where f' is the derivative of f. A similar definition applies to space curves and curves in n-dimensional Euclidean space.",
-    "derivative": "In mathematics, the derivative is a fundamental tool that quantifies the sensitivity to change of a function's output with respect to its input. The derivative of a function of a single variable at a chosen input value, when it exists, is the slope of the tangent line to the graph of the function at that point. The tangent line is the best linear approximation of the function near that input value. The derivative is often described as the instantaneous rate of change, the ratio of the instantaneous change in the dependent variable to that of the independent variable. The process of finding a derivative is called differentiation.",
-    "integral": "In mathematics, an integral is the continuous analog of a sum, and is used to calculate areas, volumes, and their generalizations. The process of computing an integral, called integration, is one of the two fundamental operations of calculus, along with differentiation. Integration was initially used to solve problems in mathematics and physics, such as finding the area under a curve, or determining displacement from velocity. Usage of integration expanded to a wide variety of scientific fields thereafter.",
-    "real": "In mathematics, a real number is a number that can be used to measure a continuous one-dimensional quantity such as a length, duration or temperature. Here, continuous means that pairs of values can have arbitrarily small differences. Every real number can be almost uniquely represented by an infinite decimal expansion.",
-    "natural": "In mathematics, the natural numbers are the numbers 0, 1, 2, 3, and so on, possibly excluding 0. The terms positive integers, non-negative integers, whole numbers, and counting numbers are also used. The set of the natural numbers is commonly denoted by a bold N or a blackboard bold ℕ.",
-    "integer": "An integer is the number zero (0), a positive natural number (1, 2, 3, ...), or the negation of a positive natural number (-1, -2, -3, ...). The negations or additive inverses of the positive natural numbers are referred to as negative integers. The set of all integers is often denoted by the boldface Z or blackboard bold ℤ.",
-    "number": "A number is a mathematical object used to count, measure, and label. The most basic examples are the natural numbers: 1, 2, 3, 4, 5, and so forth. Individual numbers can be represented in spoken or written language with number words, or with dedicated symbols called numerals; for example, \"eleven\" is a number word and \"11\" is the corresponding numeral. As only a limited list of symbols can be memorized, a numeral system is used to represent any number in an organized way. The most common representation is the Hindu-Arabic numeral system, a decimal system which can display any non-negative integer using a combination of ten Arabic numeral symbols called digits. Numerals can be used for counting (as with cardinal number of a collection or set), for labelling (as with telephone numbers), for ordering (as with serial numbers), and for codes (as with ISBNs). In common usage, however, a numeral is not clearly distinguished from the number that it represents.",
-    "calculus": "Calculus is the branch of mathematics that studies continuous change, and is the principal precursor of modern mathematical analysis. Originally called infinitesimal calculus or the calculus of infinitesimals, it has two major branches, differential calculus and integral calculus. Differential calculus studies instantaneous rates of change and slopes of curves; integral calculus studies accumulation of quantities and areas under or between curves. These two branches are related to each other by the fundamental theorem of calculus. Calculus uses convergence of infinite sequences and infinite series to a well-defined mathematical limit.",
-    "algebra": "Algebra is a branch of mathematics that deals with abstract systems, known as algebraic structures, and the manipulation of expressions within those systems. It is a generalization of arithmetic that introduces variables and algebraic operations other than the standard arithmetic operations, such as addition and multiplication.",
-    "matrix": "In mathematics, a matrix (pl.: matrices) is a rectangular array of numbers or other mathematical objects with elements or entries arranged in rows and columns, usually satisfying certain properties of addition and multiplication.",
-    "calc": "Short for calculator btw"
-}
 
 @client.event
 async def on_ready():
@@ -62,34 +27,6 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-
-    if "leo" in message.content.lower() or message.author.id == LEO_ID:
-        if custom_leo:
-            await message.add_reaction(custom_leo)
-        await message.channel.send(custom_leo)
-
-    if "scott" in message.content.lower():
-        if custom_scott:
-            await message.add_reaction(custom_scott)
-        await message.channel.send(custom_scott)
-
-    if "tsa" in message.content.lower():
-        if custom_tsa:
-            await message.add_reaction(custom_tsa)
-        await message.channel.send(custom_tsa)
-
-    if "shiv" in message.content.lower():
-        await message.channel.send("@shiv")
-
-    if "game" in message.content.lower():
-        await message.channel.send("You just lost the game")
-
-    if "consty" in message.content.lower() or "constable" in message.content.lower():
-        await message.channel.send(file=discord.File('absolute_honors.png'))
-
-    for key in math_dict:
-            if key in message.content.lower():
-                await message.channel.send(math_dict[key])
 
     if "!graph" in message.content.lower():
         graph_expression = message.content.lower().replace("!graph", "").strip()
@@ -102,15 +39,219 @@ async def on_message(message):
                 options.add_argument('headless')
                 driver = webdriver.Safari(options=options)
                 driver.get("file://" + os.path.abspath("temp.html"))
-                time.sleep(2)
+                time.sleep(2)  # Wait for graph to render
                 driver.save_screenshot("out.png")
                 driver.quit()
                 await message.channel.send(file=discord.File('out.png'))
                 os.remove('temp.html')
                 os.remove('out.png')
             except Exception as e:
-                await message.channel.send(e)
+                print(f"Error: {e}")
+                await message.channel.send(f"Error: {e}")
         else:
             await message.channel.send("Please provide a mathematical expression to graph after `!graph`.")
+        message.content = message.content.lower().replace("!graph", "")
+
+    if "!wa" in message.content.lower():
+        wa_query = message.content.lower().replace("!wa", "").strip()
+        if wa_query:
+            try:
+                query = urllib.parse.quote_plus(wa_query)
+                query_url = f"http://api.wolframalpha.com/v2/query?" \
+                f"appid={WA_APP_ID}" \
+                f"&input={query}" \
+                f"&format=plaintext" \
+                f"&output=json"
+
+                r = requests.get(query_url).json()
+                data = r["queryresult"]["pods"][1]["subpods"][0]
+                if "datasources" in data:
+                    datasource = ", ".join(data["datasources"])
+                else:
+                    datasource = "N/A"
+                if "microsources" in data:
+                    microsource = ", ".join(data["microsources"])
+                else:
+                    microsource = "N/A"
+                plaintext = data["plaintext"]
+                print(data)
+                await message.channel.send(f"Result:\n{plaintext}\n\nDatasources: {datasource}\nMicrosources: {microsource}")
+                
+            except Exception as e:
+                print(f"Error: {e}")
+                await message.channel.send(f"Error: {e}")
+        else:
+            await message.channel.send("Please provide a Wolfram|Alpha query after `!wa`.")
+
+    if "leo" in message.content.lower() or message.author.id == LEO_ID:
+        if custom_leo:
+            await message.add_reaction(custom_leo)
+        await message.channel.send(custom_leo)
+        message.content = message.content.lower().replace("leo", "")
+
+    if "scott" in message.content.lower():
+        if custom_scott:
+            await message.add_reaction(custom_scott)
+        await message.channel.send(custom_scott)
+        message.content = message.content.lower().replace("scott", "")
+
+    if "tsa" in message.content.lower():
+        if custom_tsa:
+            await message.add_reaction(custom_tsa)
+        await message.channel.send(custom_tsa)
+        message.content = message.content.lower().replace("tsa", "")
+    
+    if "shiv" in message.content.lower():
+        await message.channel.send("@shiv")
+        message.content = message.content.lower().replace("shiv", "")
+
+    if "game" in message.content.lower():
+        await message.channel.send("You just lost the game")
+        message.content = message.content.lower().replace("game", "")
+
+    if "consty" in message.content.lower() or "constable" in message.content.lower():
+        await message.channel.send(file=discord.File('absolute_honors.png'))
+        message.content = message.content.lower().replace("consty", "").replace("constable", "")
+
+    if "math" in message.content.lower():
+        await message.channel.send("Mathematics is a field of knowledge concerned with abstract concepts such as numbers, geometric shapes, sets, functions, and probabilities. It uses logical reasoning and proof to study and establish their properties, often expressed as theorems, formulas, and equations. Mathematics is used to model and solve problems in science, engineering, technology, economics, and everyday life.")
+        message.content = message.content.lower().replace("math", "")
+
+    if "desmos" in message.content.lower():
+        await message.channel.send("Desmos is an advanced graphing calculator implemented as a web application and a mobile application written in TypeScript and JavaScript.")
+        message.content = message.content.lower().replace("desmos", "")
+
+    if "rational function" in message.content.lower():
+        await message.channel.send("In mathematics, a rational function is any function that can be defined by a rational fraction, which is an algebraic fraction such that both the numerator and the denominator are polynomials. The coefficients of the polynomials need not be rational numbers; they may be taken in any field K. In this case, one speaks of a rational function and a rational fraction over K. The values of the variables may be taken in any field L containing K. Then the domain of the function is the set of the values of the variables for which the denominator is not zero, and the codomain is L.")
+        message.content = message.content.lower().replace("rational function", "")
+
+    if "function" in message.content.lower():
+        await message.channel.send("In mathematics, a function from a set X to a set Y assigns to each element of X exactly one element of Y. The set X is called the domain of the function and the set Y is called the codomain of the function.")
+        message.content = message.content.lower().replace("function", "")
+
+    if "rational" in message.content.lower():
+        await message.channel.send("In mathematics, a rational number is a number that can be expressed as the quotient or fraction p/q of two integers, a numerator p and a nonzero denominator q. For example, 3/7 is a rational number, as is every integer (for example, -5 = -5/1). The set of all rational numbers is often referred to as \"the rationals\", and is closed under addition, subtraction, multiplication, and division by a nonzero rational number. It is a field under these operations and therefore also called the field of rationals or the field of rational numbers. It is usually denoted by boldface Q, or blackboard bold ℚ.")
+        message.content = message.content.lower().replace("rational", "")
+
+    if "graph" in message.content.lower():
+        await message.channel.send("In mathematics, the graph of a function f is the set of ordered pairs (x,y), where f(x) = y. In the common case where x and f(x) are real numbers, these pairs are Cartesian coordinates of points in a plane and often form a curve. The graphical representation of the graph of a function is also known as a plot.")
+        message.content = message.content.lower().replace("graph", "")
+
+    if "polynomial" in message.content.lower():
+        await message.channel.send("In mathematics, a polynomial is a mathematical expression consisting of indeterminates (also called variables) and coefficients, that involves only the operations of addition, subtraction, multiplication and exponentiation to nonnegative integer powers, and has a finite number of terms. An example of a polynomial of a single indeterminate x is x^2 - 4x + 7. An example with three indeterminates is x^3 + 2xyz^2 - yz + 1.")
+        message.content = message.content.lower().replace("polynomial", "")
+
+    if "exponential" in message.content.lower():
+        await message.channel.send("In mathematics, the exponential function is the unique real function which maps zero to one and has a derivative everywhere equal to its value. It is denoted e^x or exp x; the latter is preferred when the argument x is a complicated expression. It is called exponential because its argument can be seen as an exponent to which a constant number e ≈ 2.718, the base, is raised. There are several other definitions of the exponential function, which are all equivalent although being of very different nature.")
+        message.content = message.content.lower().replace("exponential", "")
+
+    if "logarithm" in message.content.lower():
+        await message.channel.send("In mathematics, the logarithm of a number is the exponent by which another fixed value, the base, must be raised to produce that number. For example, the logarithm of 1000 to base 10 is 3, because 1000 is 10 to the 3rd power: 1000 = 103 = 10 × 10 × 10. More generally, if x = by, then y is the logarithm of x to base b, written logb x = y, so log10 1000 = 3. As a single-variable function, the logarithm to base b is the inverse of exponentiation with base b.")
+        message.content = message.content.lower().replace("logarithm", "")
+
+    if "sequence" in message.content.lower():
+        await message.channel.send("In mathematics, a sequence is a collection of objects possibly with repetition, that come in a specified order. Like a set, it contains members (also called elements, or terms). Unlike a set, the same elements can appear multiple times at different positions in a sequence, and unlike a set, the order does matter. The notion of a sequence can be generalized to an indexed family, defined as a function from an arbitrary index set.")
+        message.content = message.content.lower().replace("sequence", "")
+
+    if "series" in message.content.lower():
+        await message.channel.send("In mathematics, a series is, roughly speaking, an addition of infinitely many terms, one after the other. The study of series is a major part of calculus and its generalization, mathematical analysis. Series are used in most areas of mathematics, even for studying finite structures in combinatorics through generating functions. The mathematical properties of infinite series make them widely applicable in other quantitative disciplines such as physics, computer science, statistics and finance.")
+        message.content = message.content.lower().replace("series", "")
+
+    if "probability" in message.content.lower():
+        await message.channel.send("Probability concerns events and numerical descriptions of how likely they are to occur. The probability of an event is a number between 0 and 1; the larger the probability, the more likely an event is to occur. This number is often expressed as a percentage (%), ranging from 0% to 100%. A simple example is the tossing of a fair (unbiased) coin. Since the coin is fair, the two outcomes (\"heads\" and \"tails\") are both equally probable; the probability of \"heads\" is the same asthe probability of \"tails\". Since no other outcomes are possible,the probability of either \"heads\" or \"tails\" is 1/2 (which could also be written as 0.5 or 50%).")
+        message.content = message.content.lower().replace("probability", "")
+
+    if "inverse trig" in message.content.lower():
+            await message.channel.send("In mathematics, the inverse trigonometric functions (occasionally also called antitrigonometric, cyclometric, or arcus functions) are the inverse functions of the trigonometric functions, under suitably restricted domains. Specifically, they are the inverses of the sine, cosine, tangent, cotangent, secant, and cosecant functions, and are used to obtain an angle from any of the angle's trigonometric ratios. Inverse trigonometric functions are widely used in engineering, navigation, physics, and geometry.")
+            message.content = message.content.lower().replace("inverse trig", "")
+
+    if "trig" in message.content.lower():
+        await message.channel.send("Trigonometry (from Ancient Greek τρίγωνον (trígōnon) 'triangle' and μέτρον (métron) 'measure') is a branch of mathematics concerned with relationships between angles and side lengths of triangles. In particular, the trigonometric functions relate the angles of a right triangle with ratios of its side lengths. The field emerged in the Hellenistic world during the 3rd century BC from applications of geometry to astronomical studies. The Greeks focused on the calculation of chords, while mathematicians in India created the earliest-known tables of values for trigonometric ratios (also called trigonometric functions) such as sine.")
+        message.content = message.content.lower().replace("trig", "")
+
+    if "sin" in message.content.lower() or "cos" in message.content.lower():
+        await message.channel.send("In mathematics, sine and cosine are trigonometric functions of an angle. The sine and cosine of an acute angle are defined in the context of a right triangle: for the specified angle, its sine is the ratio of the length of the side opposite that angle to the length of the longest side of the triangle (the hypotenuse), and the cosine is the ratio of the length of the adjacent leg to that of the hypotenuse. For an angle θ, the sine and cosine functions are denoted as sin(θ) and cos(θ).")
+        message.content = message.content.lower().replace("sin", "").replace("cos", "")
+
+    if "complex" in message.content.lower():
+        await message.channel.send("In mathematics, a complex number is an element of a number system that extends the real numbers with a specific element denoted i, called the imaginary unit and satisfying the equation i^2 = -1. Since no real number satisfies the above equation, i was called an imaginary number by René Descartes. Every complex number can be expressed in the form a+bi, where a and b are real numbers, a is called the real part, and b is called the imaginary part. The set of complex numbers is denoted by either of the symbols ℂ or C. Despite the historical nomenclature, \"imaginary\" numbers are not fictitious: they are no less real mathematically than real numbers, and they are essential to the scientific description of the physical world.")
+        message.content = message.content.lower().replace("complex", "").replace("imaginary", "")
+
+    if "imaginary" in message.content.lower():
+        await message.channel.send("An imaginary number is the product of a real number and the imaginary unit i, which is defined by its property i^2 =-1. The square of an imaginary number bi is -b^2. For example, 5i is an imaginary number, and its square is -25. The number zero is considered to be both real and imaginary.")
+        message.content = message.content.lower().replace("imaginary", "")
+
+    if "polar" in message.content.lower():
+        await message.channel.send("In mathematics, the polar coordinate system specifies a given point in a plane by using a distance and an angle as its two coordinates. These are the point's distance from a reference point called the pole, and the point's direction from the pole relative to the direction of the polar axis, a ray drawn from the pole. The distance from the pole is called the radial coordinate, radial distance or simply radius, and the angle is called the angular coordinate, polar angle, or azimuth. The pole is analogous to the origin in a Cartesian coordinate system.")
+        message.content = message.content.lower().replace("polar", "")
+
+    if "parametric" in message.content.lower():
+        await message.channel.send("In mathematics, a parametric equation expresses several quantities, such as the coordinates of a point, as functions of one or more variables called parameters. In the case of a single parameter, parametric equations are commonly used to express the trajectory of a moving point. For this case, the parameter is often, but not necessarily, time, and the point describes a curve, called a parametric curve. In the case of two parameters, the point describes a surface, called a parametric surface. In all cases, the equations are collectively called a parametric representation, or parametric system, or parameterization (also spelled parametrization, parametrisation) of the object.")
+        message.content = message.content.lower().replace("parametric", "")
+
+    if "vector" in message.content.lower():
+        await message.channel.send("In mathematics and physics, a vector is a generalization of a single number. It may denote a vector quantity, i.e., physical quantity that cannot be expressed by a single scalar quantity. The term may also be used to refer to elements of vector spaces, that can be added together and multiplied (\"scaled\") by scalars. In some contexts, vectors are tuples, which are finite sequences (of numbers or other objects) of a fixed length.")
+        message.content = message.content.lower().replace("vector", "")
+
+    if "conic" in message.content.lower():
+        await message.channel.send("A conic section, conic or a quadratic curve is a curve obtained from a cone's surface intersecting a plane. The three types of conic section are the hyperbola, the parabola, and the ellipse; the circle is a special case of the ellipse, though it was sometimes considered a fourth type. The ancient Greek mathematicians studied conic sections, culminating around 200 BC with Apollonius of Perga's systematic work on their properties.")
+        message.content = message.content.lower().replace("conic", "")
+
+    if "spreadsheet" in message.content.lower():
+        await message.channel.send("A spreadsheet is a computer application for computation, organization, analysis and storage of data in tabular form. Spreadsheets were developed as computerized analogs of paper accounting worksheets. The program operates on data entered in cells of a table. Each cell may contain either numeric or text data, or the results of formulas that automatically calculate and display a value based on the contents of other cells. The term spreadsheet may also refer to one such electronic document.")
+        message.content = message.content.lower().replace("spreadsheet", "")
+
+    if "limit" in message.content.lower():
+        await message.channel.send("In mathematics, a limit is the value that a function (or sequence) approaches as the argument (or index) approaches some value. Limits of functions are essential to calculus and mathematical analysis, and are used to define continuity, derivatives, and integrals. The concept of a limit of a sequence is further generalized to the concept of a limit of a topological net, and is closely related to limit and direct limit in category theory. The limit inferior and limit superior provide generalizations of the concept of a limit which are particularly relevant when the limit at a point may not exist.")
+        message.content = message.content.lower().replace("limit", "")
+
+    if "secant" in message.content.lower():
+        await message.channel.send("In geometry, a secant is a line that intersects a curve at a minimum of two distinct points. The word secant comes from the Latin word secare, meaning \"to cut\". In the case of a circle, a secant intersects the circle at exactly two points. A chord is the line segment determined by the two points, that is, the interval on the secant whose ends are the two points.")
+        message.content = message.content.lower().replace("secant", "")
+
+    if "tangent" in message.content.lower():
+        await message.channel.send("In geometry, the tangent line (or simply tangent) to a plane curve at a given point is, intuitively, the straight line that \"just touches\" the curve at that point. Leibniz defined it as the line through a pair of infinitely close points on the curve. More precisely, a straight line is tangent to the curve y = f(x) at a point x=c if the line passes through the point (c,f(c)) on the curve and has slope f'(c), where f' is the derivative of f. A similar definition applies to space curves and curves in n-dimensional Euclidean space.")
+        message.content = message.content.lower().replace("tangent", "")
+
+    if "derivative" in message.content.lower():
+        await message.channel.send("In mathematics, the derivative is a fundamental tool that quantifies the sensitivity to change of a function's output with respect to its input. The derivative of a function of a single variable at a chosen input value, when it exists, is the slope of the tangent line to the graph of the function at that point. The tangent line is the best linear approximation of the function near that input value. The derivative is often described as the instantaneous rate of change, the ratio of the instantaneous change in the dependent variable to that of the independent variable. The process of finding a derivative is called differentiation.")
+        message.content = message.content.lower().replace("derivative", "")
+
+    if "integral" in message.content.lower():
+        await message.channel.send("In mathematics, an integral is the continuous analog of a sum, and is used to calculate areas, volumes, and their generalizations. The process of computing an integral, called integration, is one of the two fundamental operations of calculus, along with differentiation. Integration was initially used to solve problems in mathematics and physics, such as finding the area under a curve, or determining displacement from velocity. Usage of integration expanded to a wide variety of scientific fields thereafter.")
+        message.content = message.content.lower().replace("integral", "")
+
+    if "real" in message.content.lower():
+        await message.channel.send("In mathematics, a real number is a number that can be used to measure a continuous one-dimensional quantity such as a length, duration or temperature. Here, continuous means that pairs of values can have arbitrarily small differences. Every real number can be almost uniquely represented by an infinite decimal expansion.")
+        message.content = message.content.lower().replace("real", "")
+
+    if "natural" in message.content.lower():
+        await message.channel.send("In mathematics, the natural numbers are the numbers 0, 1, 2, 3, and so on, possibly excluding 0. The terms positive integers, non-negative integers, whole numbers, and counting numbers are also used. The set of the natural numbers is commonly denoted by a bold N or a blackboard bold ℕ.")
+        message.content = message.content.lower().replace("natural", "")
+
+    if "integer" in message.content.lower():
+        await message.channel.send("An integer is the number zero (0), a positive natural number (1, 2, 3, ...), or the negation of a positive natural number (-1, -2, -3, ...). The negations or additive inverses of the positive natural numbers are referred to as negative integers. The set of all integers is often denoted by the boldface Z or blackboard bold ℤ.")
+        message.content = message.content.lower().replace("integer", "")
+
+    if "number" in message.content.lower():
+        await message.channel.send("A number is a mathematical object used to count, measure, and label. The most basic examples are the natural numbers: 1, 2, 3, 4, 5, and so forth. Individual numbers can be represented in spoken or written language with number words, or with dedicated symbols called numerals; for example, \"eleven\" is a number word and \"11\" is the corresponding numeral. As only a limited list of symbols can be memorized, a numeral system is used to represent any number in an organized way. The most common representation is the Hindu-Arabic numeral system, a decimal system which can display any non-negative integer using a combination of ten Arabic numeral symbols called digits. Numerals can be used for counting (as with cardinal number of a collection or set), for labelling (as with telephone numbers), for ordering (as with serial numbers), and for codes (as with ISBNs). In common usage, however, a numeral is not clearly distinguished from the number that it represents.")
+        message.content = message.content.lower().replace("number", "")
+
+    if "calculus" in message.content.lower():
+        await message.channel.send("Calculus is the branch of mathematics that studies continuous change, and is the principal precursor of modern mathematical analysis. Originally called infinitesimal calculus or the calculus of infinitesimals, it has two major branches, differential calculus and integral calculus. Differential calculus studies instantaneous rates of change and slopes of curves; integral calculus studies accumulation of quantities and areas under or between curves. These two branches are related to each other by the fundamental theorem of calculus. Calculus uses convergence of infinite sequences and infinite series to a well-defined mathematical limit.")
+        message.content = message.content.lower().replace("calculus", "")
+
+    if "algebra" in message.content.lower():
+        await message.channel.send("Algebra is a branch of mathematics that deals with abstract systems, known as algebraic structures, and the manipulation of expressions within those systems. It is a generalization of arithmetic that introduces variables and algebraic operations other than the standard arithmetic operations, such as addition and multiplication.")
+        message.content = message.content.lower().replace("algebra", "")
+
+    if "matrix" in message.content.lower():
+        await message.channel.send("In mathematics, a matrix (pl.: matrices) is a rectangular array of numbers or other mathematical objects with elements or entries arranged in rows and columns, usually satisfying certain properties of addition and multiplication.")
+        message.content = message.content.lower().replace("matrix", "")
+
+    if "calc" in message.content.lower():
+        await message.channel.send("Short for calculator btw")
+        message.content = message.content.lower().replace("calc", "")
+
         
 client.run(DISCORD_TOKEN)
