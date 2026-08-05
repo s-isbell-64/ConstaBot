@@ -2,11 +2,10 @@ import os
 from dotenv import load_dotenv
 import discord
 import PyDesmos
-from selenium import webdriver
 import time
 import urllib.parse
 import requests
-
+from html2image import Html2Image
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
@@ -35,13 +34,10 @@ async def on_message(message):
                 G = PyDesmos.Graph()
                 G.append(graph_expression)
                 G.save()
-                options = webdriver.SafariOptions()
-                options.add_argument('headless')
-                driver = webdriver.Safari(options=options)
-                driver.get("file://" + os.path.abspath("temp.html"))
-                time.sleep(2)  # Wait for graph to render
-                driver.save_screenshot("out.png")
-                driver.quit()
+
+                hti = Html2Image()
+                hti.screenshot(html_file='temp.html', save_as='out.png')
+
                 await message.channel.send(file=discord.File('out.png'))
                 os.remove('temp.html')
                 os.remove('out.png')
