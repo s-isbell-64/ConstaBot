@@ -1,11 +1,12 @@
 import os
+import random
 from dotenv import load_dotenv
+import requests
 import discord
 import PyDesmos
-import time
-import urllib.parse
-import requests
 from html2image import Html2Image
+import datetime as dt
+import urllib.parse
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
@@ -27,7 +28,10 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if "!graph" in message.content.lower():
+    if message.created_at.hour >= 0 and message.created_at.hour < 2:
+        await message.channel.send("Go to sleep")
+
+    if message.content.lower().startswith("!graph"):
         graph_expression = message.content.lower().replace("!graph", "").strip()
         if graph_expression:
             try:
@@ -42,13 +46,13 @@ async def on_message(message):
                 os.remove('temp.html')
                 os.remove('out.png')
             except Exception as e:
-                print(f"Error: {e}")
+                print(e)
                 await message.channel.send(f"Error: {e}")
         else:
             await message.channel.send("Please provide a mathematical expression to graph after `!graph`.")
         message.content = message.content.lower().replace("!graph", "")
-
-    if "!wa" in message.content.lower():
+    
+    if message.content.lower().startswith("!wa"):
         wa_query = message.content.lower().replace("!wa", "").strip()
         if wa_query:
             try:
@@ -70,14 +74,37 @@ async def on_message(message):
                 else:
                     microsource = "N/A"
                 plaintext = data["plaintext"]
-                print(data)
                 await message.channel.send(f"Result:\n{plaintext}\n\nDatasources: {datasource}\nMicrosources: {microsource}")
-                
             except Exception as e:
-                print(f"Error: {e}")
+                print(e)
                 await message.channel.send(f"Error: {e}")
         else:
             await message.channel.send("Please provide a Wolfram|Alpha query after `!wa`.")
+        message.content = message.content.lower().replace("!wa", "")
+
+    if message.content.lower().startswith("!choose"):
+        try:
+            options = message.content.lower().replace("!choose", "").strip().split(",")
+            if len(options) < 2:
+                raise ValueError("Not enough options provided")
+            else:
+                choice = random.choice([option.strip() for option in options])
+                await message.channel.send(f"I choose: {choice}")
+            message.content = message.content.lower().replace("!choose", "")
+        except Exception as e:
+            print(e)
+            await message.channel.send(f"Error: {e}. Please use the format `!choose option1, option2, ...`.")
+
+    if message.content.lower().startswith("!roll"):
+        try:
+            (num, faces) = map(int, message.content.lower().replace("!roll", "").strip().split("d"))
+            if num < 1 or faces < 1:
+                raise ValueError("Number of dice and faces must be positive integers")
+            rolls = [random.randint(1, faces) for _ in range(num)]
+            await message.channel.send(f"Rolls: {rolls}\nTotal: {sum(rolls)}")
+        except Exception as e:
+            print(e)
+            await message.channel.send(f"Error: {e}. Please use the format `!roll NdM` where N is the number of dice and M is the number of faces.")
 
     if "leo" in message.content.lower() or message.author.id == LEO_ID:
         if custom_leo:
@@ -158,8 +185,8 @@ async def on_message(message):
         message.content = message.content.lower().replace("probability", "")
 
     if "inverse trig" in message.content.lower():
-            await message.channel.send("In mathematics, the inverse trigonometric functions (occasionally also called antitrigonometric, cyclometric, or arcus functions) are the inverse functions of the trigonometric functions, under suitably restricted domains. Specifically, they are the inverses of the sine, cosine, tangent, cotangent, secant, and cosecant functions, and are used to obtain an angle from any of the angle's trigonometric ratios. Inverse trigonometric functions are widely used in engineering, navigation, physics, and geometry.")
-            message.content = message.content.lower().replace("inverse trig", "")
+        await message.channel.send("In mathematics, the inverse trigonometric functions (occasionally also called antitrigonometric, cyclometric, or arcus functions) are the inverse functions of the trigonometric functions, under suitably restricted domains. Specifically, they are the inverses of the sine, cosine, tangent, cotangent, secant, and cosecant functions, and are used to obtain an angle from any of the angle's trigonometric ratios. Inverse trigonometric functions are widely used in engineering, navigation, physics, and geometry.")
+        message.content = message.content.lower().replace("inverse trig", "")
 
     if "trig" in message.content.lower():
         await message.channel.send("Trigonometry (from Ancient Greek τρίγωνον (trígōnon) 'triangle' and μέτρον (métron) 'measure') is a branch of mathematics concerned with relationships between angles and side lengths of triangles. In particular, the trigonometric functions relate the angles of a right triangle with ratios of its side lengths. The field emerged in the Hellenistic world during the 3rd century BC from applications of geometry to astronomical studies. The Greeks focused on the calculation of chords, while mathematicians in India created the earliest-known tables of values for trigonometric ratios (also called trigonometric functions) such as sine.")
@@ -245,9 +272,16 @@ async def on_message(message):
         await message.channel.send("In mathematics, a matrix (pl.: matrices) is a rectangular array of numbers or other mathematical objects with elements or entries arranged in rows and columns, usually satisfying certain properties of addition and multiplication.")
         message.content = message.content.lower().replace("matrix", "")
 
+    if "calculator" in message.content.lower():
+        await message.channel.send("A calculator is typically a portable electronic device used to perform calculations, ranging from basic arithmetic to complex mathematics.")
+        message.content = message.content.lower().replace("calculator", "")
+
     if "calc" in message.content.lower():
         await message.channel.send("Short for calculator btw")
         message.content = message.content.lower().replace("calc", "")
 
+    if "stat" in message.content.lower():
+        await message.channel.send("Statistics (from German: Statistik, orig. \"description of a state, a country\") is the discipline that concerns the collection, organization, analysis, interpretation, and presentation of data. In applying statistics to a scientific, industrial, or social problem, it is conventional to begin with a statistical population or a statistical model to be studied. Populations can be diverse groups of people or objects such as \"all people living in a country\" or \"every atom composing a crystal\". Statistics deals with every aspect of data, including the planning of data collection in terms of the design of surveys and experiments. Statistics is deeply related to subjects like physics, chemistry, geography, geopolitics, and especially mathematics.")
+        message.content = message.content.lower().replace("stat", "")
         
 client.run(DISCORD_TOKEN)
