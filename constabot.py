@@ -29,14 +29,15 @@ async def on_message(message):
         return
 
     if message.created_at.hour >= 0 and message.created_at.hour < 2:
-        await message.channel.send("Go to sleep")
+        await message.channel.send("Time flies when you're having fun! Time to go to bed now")
 
     if message.content.lower().startswith("!graph"):
-        graph_expression = message.content.lower().replace("!graph", "").strip()
-        if graph_expression:
+        graph_expressions = message.content.lower().replace("!graph", "").strip().split(";")
+        if graph_expressions:
             try:
                 G = PyDesmos.Graph()
-                G.append(graph_expression)
+                for graph_expression in graph_expressions:
+                    G.append(graph_expression)
                 G.save()
 
                 hti = Html2Image()
@@ -90,10 +91,10 @@ async def on_message(message):
             else:
                 choice = random.choice([option.strip() for option in options])
                 await message.channel.send(f"I choose: {choice}")
-            message.content = message.content.lower().replace("!choose", "")
         except Exception as e:
             print(e)
             await message.channel.send(f"Error: {e}. Please use the format `!choose option1, option2, ...`.")
+        message.content = message.content.lower().replace("!choose", "")
 
     if message.content.lower().startswith("!roll"):
         try:
@@ -105,6 +106,18 @@ async def on_message(message):
         except Exception as e:
             print(e)
             await message.channel.send(f"Error: {e}. Please use the format `!roll NdM` where N is the number of dice and M is the number of faces.")
+
+    if message.content.lower().startswith("!help"):
+        help_message = (
+            "Available commands:\n"
+            "`!graph <expression>` - Graphs the given mathematical expression.\n"
+            "`!wa <query>` - Queries Wolfram|Alpha for the given input.\n"
+            "`!choose option1, option2, ...` - Randomly chooses one of the provided options.\n"
+            "`!roll NdM` - Rolls N dice with M faces and returns the results.\n"
+        )
+        await message.channel.send(help_message)
+        message.content = message.content.lower().replace("!help", "")
+    
 
     if "leo" in message.content.lower() or message.author.id == LEO_ID:
         if custom_leo:
