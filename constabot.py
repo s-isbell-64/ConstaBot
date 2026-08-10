@@ -1,3 +1,4 @@
+from email.mime import message
 import os
 import random
 from dotenv import load_dotenv
@@ -27,7 +28,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-
+    
     if message.created_at.hour >= 0 and message.created_at.hour < 2:
         await message.channel.send("Time flies when you're having fun! Time to go to bed now")
 
@@ -136,6 +137,7 @@ async def on_message(message):
             await message.add_reaction(custom_tsa)
         await message.channel.send(custom_tsa)
         message.content = message.content.lower().replace("tsa", "")
+
     
     if "shiv" in message.content.lower():
         await message.channel.send("@shiv")
@@ -296,5 +298,49 @@ async def on_message(message):
     if "stat" in message.content.lower():
         await message.channel.send("Statistics (from German: Statistik, orig. \"description of a state, a country\") is the discipline that concerns the collection, organization, analysis, interpretation, and presentation of data. In applying statistics to a scientific, industrial, or social problem, it is conventional to begin with a statistical population or a statistical model to be studied. Populations can be diverse groups of people or objects such as \"all people living in a country\" or \"every atom composing a crystal\". Statistics deals with every aspect of data, including the planning of data collection in terms of the design of surveys and experiments. Statistics is deeply related to subjects like physics, chemistry, geography, geopolitics, and especially mathematics.")
         message.content = message.content.lower().replace("stat", "")
+
+    if "euler" in message.content.lower():
+        await message.channel.send("Leonhard Euler (/ˈɔɪlər/ OY-lər; 15 April 1707 - 18 September 1783) was a Swiss polymath who was active as a mathematician, physicist, astronomer, logician, geographer, music theorist and engineer. He founded the studies of graph theory and topology and made influential discoveries in many other branches of mathematics, such as analytic number theory, complex analysis, and infinitesimal calculus. He also introduced much of modern mathematical terminology and notation, including the notion of a mathematical function. He is known for his work in mechanics, fluid dynamics, optics, astronomy, and music theory. Euler has been called a \"universal genius\" who \"was fully equipped with almost unlimited powers of imagination, intellectual gifts and extraordinary memory\". He spent most of his adult life in Saint Petersburg, Russia, and in Berlin, then the capital of Prussia.")
+        message.content = message.content.lower().replace("euler", "")
+
+    if "gauss" in message.content.lower():
+        await message.channel.send("Johann Carl Friedrich Gauss (/ɡaʊs/; German: Gauß; 30 April 1777 - 23 February 1855) was a German mathematician, astronomer, geodesist, and physicist, who contributed to many fields in mathematics and science. His mathematical contributions spanned the branches of number theory, algebra, analysis, geometry, statistics, and probability. Gauss was director of the Göttingen Observatory in Germany and professor of astronomy from 1807 until his death in 1855.")
+        message.content = message.content.lower().replace("gauss", "")
+
+    if "pythagoras" in message.content.lower():
+        await message.channel.send("Pythagoras of Samos (Ancient Greek: Πυθαγόρας; c. 570 - c. 495 BC) was an ancient Ionian Greek philosopher, polymath, and the eponymous founder of Pythagoreanism. His political and religious teachings were well known in Magna Graecia and influenced the philosophies of Plato, Aristotle, and, through them, Western philosophy. Modern scholars disagree regarding Pythagoras's education and influences, but most agree that he travelled to Croton in southern Italy around 530 BC, where he founded a school in which initiates were allegedly sworn to secrecy and lived a communal, ascetic lifestyle.")
+        message.content = message.content.lower().replace("pythagoras", "")
+
+    if "pythagorean" in message.content.lower():
+        await message.channel.send("In mathematics, the Pythagorean theorem or Pythagoras's theorem is a fundamental relation in Euclidean geometry between the three sides of a right triangle. It states that the area of the square whose side is the hypotenuse (the side opposite the right angle) is equal to the sum of the areas of the squares on the other two sides.")
+        message.content = message.content.lower().replace("pythagorean", "")
+
+    if "euclid" in message.content.lower():
+        await message.channel.send("Euclid (/ˈjuːklɪd/; Ancient Greek: Εὐκλείδης; fl. 300 BC) was an ancient Greek mathematician active as a geometer and logician. Considered the \"father of geometry\", he is chiefly known for the Elements treatise, which established the foundations of geometry that largely dominated the field until the early 19th century. His system, now referred to as Euclidean geometry, involved innovations in combination with a synthesis of theories from earlier Greek mathematicians, including Eudoxus of Cnidus, Hippocrates of Chios, Thales and Theaetetus. With Archimedes and Apollonius of Perga, Euclid is generally considered among the greatest mathematicians of antiquity, and one of the most influential in the history of mathematics.")
+        message.content = message.content.lower().replace("euclid", "")
+
+    if "newton" in message.content.lower():
+        await message.channel.send("Sir Isaac Newton (/ˈnjuːtən/; 4 January 1643 [O.S. 25 December 1642] - 31 March [O.S. 20 March] 1727) was an English polymath who was a mathematician, physicist, astronomer, alchemist, theologian, author and inventor. He was a key figure in the Scientific Revolution and the Enlightenment that followed. His book Philosophiæ Naturalis Principia Mathematica (Mathematical Principles of Natural Philosophy), first published in 1687, achieved the first great unification in physics and established classical mechanics. Newton also made seminal contributions to optics, and shares credit with the German mathematician Gottfried Wilhelm Leibniz for formulating infinitesimal calculus, although he developed calculus years before Leibniz. Newton contributed to and refined the scientific method, and his work is considered the most influential in bringing forth modern science.")
+        message.content = message.content.lower().replace("newton", "")
+
+    if "archimedes" in message.content.lower():
+        await message.channel.send("Archimedes of Syracuse[a] (/ˌɑːrkɪˈmiːdiːz/ AR-kih-MEE-deez; c. 287 - c. 212 BC) was an Ancient Greek mathematician, physicist, engineer, astronomer, and inventor from the city of Syracuse in Sicily. Although few details of his life are known, based on his surviving work, he is considered one of the leading scientists in classical antiquity, and one of the greatest mathematicians of all time. Archimedes anticipated modern calculus and analysis by applying the concept of the infinitesimals and the method of exhaustion to derive and rigorously prove many geometrical theorems, including the area of a circle, the surface area and volume of a sphere, the area of an ellipse, the area under a parabola, the volume of a segment of a paraboloid of revolution, the volume of a segment of a hyperboloid of revolution, and the area of a spiral.")
+        message.content = message.content.lower().replace("archimedes", "")
+
+    if "leibniz" in message.content.lower():
+        await message.channel.send("Gottfried Wilhelm Leibniz (or Leibnitz; 1 July 1646 [O.S. 21 June] - 14 November 1716) was a German polymath active as a mathematician, philosopher, scientist, and diplomat who is credited, alongside Isaac Newton, with the creation of calculus in addition to many other branches of mathematics, such as binary arithmetic and statistics. Leibniz has been called the \"last universal genius\" due to his vast expertise across fields, which became a rarity after his lifetime with the coming of the Industrial Revolution and the spread of specialized labour. He is a prominent figure in both the history of philosophy and the history of mathematics. He wrote works on philosophy, theology, ethics, politics, law, history, philology, games, music, economics and other studies. Leibniz also made major contributions to physics and technology, and anticipated notions that surfaced much later in probability theory, biology, medicine, geology, psychology, linguistics and computer science.")
+        message.content = message.content.lower().replace("leibniz", "")
+
+    if "riemann" in message.content.lower():
+        await message.channel.send("Georg Friedrich Bernhard Riemann (/ˈriːmɑːn/; German: [ˈɡeːɔʁk ˈfʁiːdʁɪç ˈbɛʁnhaʁt ˈʁiːman]; 17 September 1826 - 20 July 1866) was a German mathematician who made profound contributions to analysis, number theory, and differential geometry. In the field of real analysis, he is mostly known for the first rigorous formulation of the integral, the Riemann integral, and his work on Fourier series. His contributions to complex analysis include most notably the introduction of Riemann surfaces, breaking new ground in a natural, geometric treatment of complex analysis. His 1859 paper on the prime-counting function, containing the original statement of the Riemann hypothesis, is regarded as a foundational paper of analytic number theory. Through his pioneering contributions to differential geometry, Riemann laid the foundations of the mathematics of general relativity. He is considered by many to be one of the greatest mathematicians of all time.")
+        message.content = message.content.lower().replace("riemann", "")
+
+    if "pi" in message.content.lower().split():
+        await message.channel.send("The number π (/paɪ/; spelled out as pi) is a mathematical constant, approximately equal to 3.14159, that is the ratio of a circle's circumference to its diameter. It appears in many formulae across mathematics and physics, and some of these formulae are commonly used for defining π, to avoid relying on the definition of the length of a curve.")
+        message.content = message.content.lower().replace("pi", "")
+
+    if "e" in message.content.lower().split():
+        await message.channel.send("The number e is a mathematical constant, approximately equal to 2.71828, that is the base of the natural logarithm and exponential function. It is sometimes called Euler's number, after the Swiss mathematician Leonhard Euler, though this can invite confusion with Euler numbers, or with Euler's constant, a different constant typically denoted γ. Alternatively, e can be called Napier's constant after John Napier. The Swiss mathematician Jacob Bernoulli discovered the constant while studying compound interest.")
+        message.content = message.content.lower().replace("e", "")
         
 client.run(DISCORD_TOKEN)
