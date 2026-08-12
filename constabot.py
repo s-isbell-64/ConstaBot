@@ -1,12 +1,12 @@
-from email.mime import message
 import os
 import random
 from dotenv import load_dotenv
+import asyncio
+import datetime as dt
 import requests
 import discord
 import PyDesmos
 from html2image import Html2Image
-import datetime as dt
 import urllib.parse
 
 load_dotenv()
@@ -187,19 +187,21 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    
+
+    content = message.content.lower()
+
+    # special behavior
     if message.created_at.hour >= 0 and message.created_at.hour < 2:
         await message.channel.send("Time flies when you're having fun! Time to go to bed now")
 
-    if "consty" in message.content.lower() or "constable" in message.content.lower():
+    if "consty" in content or "constable" in content:
         await message.channel.send(file=discord.File('absolute_honors.png'))
-        message.content = message.content.lower().replace("consty", "").replace("constable", "")
+        message.content = content.replace("consty", "").replace("constable", "")
 
     if message.author.id == LEO_ID:
         await react(message, "leo")
 
-    content = message.content.lower()
-        
+    # main behavior
     for trigger in reaction_triggers.keys():
         if trigger in content:
             await react(message, trigger)
@@ -211,8 +213,10 @@ async def on_message(message):
             break
 
     for keyword, response in math_responses.items():
-        if keyword in message.content.lower():
+        if keyword in content:
             await message.channel.send(response)
-            message.content = message.content.lower().replace(keyword, "")
-        
+            message.content = content.replace(keyword, "")
+
+
+
 client.run(DISCORD_TOKEN)
