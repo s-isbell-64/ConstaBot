@@ -1,8 +1,6 @@
 import os
 import random
 from dotenv import load_dotenv
-import asyncio
-import datetime as dt
 import requests
 import discord
 import PyDesmos
@@ -35,7 +33,7 @@ async def graph_command(message):
             print(e)
             await message.channel.send(f"Error: {e}")
     else:
-        await message.channel.send("Please provide a mathematical expression to graph after `!graph`.")
+        await message.channel.send("Please provide a mathematical expression to graph after `!graph`")
     message.content = message.content.lower().replace("!graph", "")
 
 async def wa_command(message):
@@ -65,8 +63,27 @@ async def wa_command(message):
             print(e)
             await message.channel.send(f"Error: {e}")
     else:
-        await message.channel.send("Please provide a Wolfram|Alpha query after `!wa`.")
+        await message.channel.send("Please provide a Wolfram|Alpha query after `!wa`")
     message.content = message.content.lower().replace("!wa", "")
+
+async def mg_command(message):
+    mg_query = message.content.lower().replace("!mg", "").strip()
+    if mg_query:
+        shop_data = requests.get("https://magicgarden.gg/platform/v1/shops").json()
+        try:
+            if mg_query == "weather":
+                weather_data = shop_data["weather"]["current"]
+                await message.channel.send(f"Weather: {weather_data}")
+            elif mg_query == "seed":
+                seed_data = shop_data["shops"]["seed"]["items"]
+                seed_names = [item["name"] for item in seed_data]
+                seed_stock = [item["stock"] for item in seed_data]
+                await message.channel.send(f"Seed Shop:\n" + "\n".join([f"{name}: {stock}" for name, stock in zip(seed_names, seed_stock)]))
+        except Exception as e:
+            print(e)
+            await message.channel.send(f"Error: {e}")
+    else:
+        await message.channel.send("Please provide a Magic Garden query after `!mg`")
 
 async def choose_command(message):
     try:
@@ -107,6 +124,7 @@ async def help_command(message):
 command_prefixes = {
     "!graph": graph_command,
     "!wa": wa_command,
+    "!mg": mg_command,
     "!choose": choose_command,
     "!roll": roll_command,
     "!help": help_command
@@ -193,10 +211,6 @@ async def on_message(message):
 
     content = message.content.lower()
 
-    # special behavior
-    if message.created_at.hour >= 0 and message.created_at.hour < 2:
-        await message.channel.send("Time flies when you're having fun! Time to go to bed now")
-
     if "consty" in content or "constable" in content:
         await message.channel.send(file=discord.File('absolute_honors.png'))
         message.content = content.replace("consty", "").replace("constable", "")
@@ -219,7 +233,5 @@ async def on_message(message):
         if keyword in content:
             await message.channel.send(response)
             message.content = content.replace(keyword, "")
-
-
 
 client.run(DISCORD_TOKEN)
