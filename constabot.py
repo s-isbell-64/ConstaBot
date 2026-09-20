@@ -72,7 +72,7 @@ async def mg_command(message):
         shop_data = requests.get("https://magicgarden.gg/platform/v1/shops").json()
         try:
             if mg_query == "weather":
-                weather_data = shop_data["weather"]["current"]
+                weather_data = shop_data["weather"]["current"]["name"]
                 await message.channel.send(f"Weather: {weather_data}")
             elif mg_query == "seed":
                 seed_data = shop_data["shops"]["seed"]["items"]
