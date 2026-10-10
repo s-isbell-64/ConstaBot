@@ -72,16 +72,47 @@ async def mg_command(message):
         shop_data = requests.get("https://magicgarden.gg/platform/v1/shops").json()
         try:
             if mg_query == "weather":
-                weather_data = shop_data["weather"]["current"]["name"]
-                await message.channel.send(f"Weather: {weather_data}")
+                if shop_data["weather"]["current"] is None:
+                    await message.channel.send("Weather: None")
+                else:
+                    weather_data = shop_data["weather"]["current"]["name"]
+                    await message.channel.send(f"Weather: {weather_data}")
+
             elif mg_query == "seed":
                 seed_data = shop_data["shops"]["seed"]["items"]
                 seed_names = [item["name"] for item in seed_data]
                 seed_stock = [item["stock"] for item in seed_data]
-                await message.channel.send(f"Seed Shop:\n" + "\n".join([f"{name}: {stock}" for name, stock in zip(seed_names, seed_stock)]))
+                seed_prices = [item["coinPrice"] for item in seed_data]
+                await message.channel.send(f"Seed Shop:\n" + "\n".join([f"{name}: {stock} ({price} coins)" for name, stock, price in zip(seed_names, seed_stock, seed_prices)]))
+
+            elif mg_query == "egg":
+                egg_data = shop_data["shops"]["egg"]["items"]
+                egg_names = [item["name"] for item in egg_data]
+                egg_stock = [item["stock"] for item in egg_data]
+                egg_prices = [item["coinPrice"] for item in egg_data]
+                await message.channel.send(f"Egg Shop:\n" + "\n".join([f"{name}: {stock} ({price} coins)" for name, stock, price in zip(egg_names, egg_stock, egg_prices)]))
+
+            elif mg_query == "tool":
+                tool_data = shop_data["shops"]["tool"]["items"]
+                tool_names = [item["name"] for item in tool_data]
+                tool_stock = [item["stock"] for item in tool_data]
+                tool_prices = [item["coinPrice"] for item in tool_data]
+                await message.channel.send(f"Tool Shop:\n" + "\n".join([f"{name}: {stock} ({price} coins)" for name, stock, price in zip(tool_names, tool_stock, tool_prices)]))
+
+            elif mg_query == "decor":
+                decor_data = shop_data["shops"]["decor"]["items"]
+                decor_names = [item["name"] for item in decor_data]
+                decor_stock = [item["stock"] for item in decor_data]
+                decor_prices = [item["coinPrice"] for item in decor_data]
+                await message.channel.send(f"Decor Shop:\n" + "\n".join([f"{name}: {stock} ({price} coins)" for name, stock, price in zip(decor_names, decor_stock, decor_prices)]))
+
+            else:
+                await message.channel.send("Invalid Magic Garden query. Please use `!mg weather`, `!mg seed`, `!mg egg`, `!mg tool`, or `!mg decor`.")
+
         except Exception as e:
             print(e)
             await message.channel.send(f"Error: {e}")
+
     else:
         await message.channel.send("Please provide a Magic Garden query after `!mg`")
 
