@@ -6,6 +6,7 @@ import discord
 import PyDesmos
 from html2image import Html2Image
 import urllib.parse
+import syllables
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
@@ -152,6 +153,20 @@ async def help_command(message):
     await message.channel.send(help_message)
     message.content = message.content.lower().replace("!help", "")
 
+async def haiku(message):
+    split = message.content.lower().split()
+    for i in range(len(split) - 2):
+        first = split[:(i + 1)]
+        if syllables.estimate(" ".join(first)) == 5:
+            for j in range(i + 1, len(split) - 1):
+                second = split[(i + 1):(j + 1)]
+                if syllables.estimate(" ".join(second)) == 7:
+                    third = split[(j + 1):]
+                    if syllables.estimate(" ".join(third)) == 5:
+                        haiku_text = " ".join(first) + "\n" + " ".join(second) + "\n" + " ".join(third)
+                        await message.channel.send(f"Haiku detected:\n{haiku_text}")
+                        return
+
 command_prefixes = {
     "!graph": graph_command,
     "!wa": wa_command,
@@ -241,6 +256,9 @@ async def on_message(message):
         return
 
     content = message.content.lower()
+    print(syllables.estimate(content))
+    if syllables.estimate(content) == 17:
+            await haiku(message)
 
     if "consty" in content or "constable" in content:
         await message.channel.send(file=discord.File('absolute_honors.png'))
