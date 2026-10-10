@@ -256,13 +256,17 @@ async def on_message(message):
         return
 
     content = message.content.lower()
-    print(syllables.estimate(content))
+    
     if syllables.estimate(content) == 17:
             await haiku(message)
 
     if "consty" in content or "constable" in content:
         await message.channel.send(file=discord.File('absolute_honors.png'))
         message.content = content.replace("consty", "").replace("constable", "")
+
+    if "benny" in content or "benjamin" in content or "gulis" in content:
+        await message.channel.send(file=discord.File('gulis_impressed.png'))
+        message.content = content.replace("benny", "").replace("benjamin", "").replace("gulis", "")
 
     if message.author.id == LEO_ID:
         await react(message, "leo")
