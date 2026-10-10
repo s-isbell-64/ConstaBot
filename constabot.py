@@ -279,6 +279,7 @@ async def on_message(message):
     for prefix, command in command_prefixes.items():
         if content.startswith(prefix):
             await command(message)
+            message.content = content.replace(prefix, "")
             break
     
     for trigger in reaction_triggers.keys():
