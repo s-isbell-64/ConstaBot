@@ -4,9 +4,9 @@ from dotenv import load_dotenv
 import requests
 import discord
 import PyDesmos
-from html2image import Html2Image
 import urllib.parse
 import syllables
+from html2image import Html2Image
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
@@ -65,7 +65,6 @@ async def wa_command(message):
             await message.channel.send(f"Error: {e}")
     else:
         await message.channel.send("Please provide a Wolfram|Alpha query after `!wa`")
-    message.content = message.content.lower().replace("!wa", "")
 
 async def mg_command(message):
     mg_query = message.content.lower().replace("!mg", "").strip()
@@ -128,7 +127,6 @@ async def choose_command(message):
     except Exception as e:
         print(e)
         await message.channel.send(f"Error: {e}. Please use the format `!choose option1, option2, ...`.")
-    message.content = message.content.lower().replace("!choose", "")
 
 async def roll_command(message):
     try:
@@ -140,18 +138,18 @@ async def roll_command(message):
     except Exception as e:
         print(e)
         await message.channel.send(f"Error: {e}. Please use the format `!roll NdM` where N is the number of dice and M is the number of faces.")
-    message.content = message.content.lower().replace("!roll", "")
 
 async def help_command(message):
     help_message = (
-        "Available commands:\n"
-        "`!graph <expression>` - Graphs the given mathematical expression.\n"
-        "`!wa <query>` - Queries Wolfram|Alpha for the given input.\n"
-        "`!choose option1, option2, ...` - Randomly chooses one of the provided options.\n"
-        "`!roll NdM` - Rolls N dice with M faces and returns the results.\n"
+        "Available commands:\
+        `!graph <expression>` - Graphs the given mathematical expression.\
+        `!wa <query>` - Queries Wolfram|Alpha for the given input.\
+        `!choose option1, option2, ...` - Randomly chooses one of the provided options.\
+        `!roll NdM` - Rolls N dice with M faces and returns the results.\
+        `!mg <query>` - Queries the Magic Garden API for information. Valid queries are `weather`, `seed`, `egg`, `tool`, and `decor`.\
+        `!help` - Displays this help message."
     )
     await message.channel.send(help_message)
-    message.content = message.content.lower().replace("!help", "")
 
 async def haiku(message):
     split = message.content.lower().split()
@@ -180,8 +178,6 @@ math_responses = {
     "shiv": "@shiv",
     "game": "You just lost the game",
     "rogers": "It was a rather cold day at State High. The winds were roaring as a thunderstorm beat down on the school. Mr. Rogers hated the rain. It constantly reminded of his life before he met him.\nBOOM! Lightning struck, a blinding white flash causing everyone in the classroom to involuntarily close their eyes for a moment. Everyone except Mr. Constable.\n\"Mr. Constable, how is it that you never fear thunder?\" Mr. Rogers asked, peeking out from under his desk.\n\"Why do I not fear thunder? Because of a dream I had many years ago.\"\n\"A dream?\"\"Yes. A dream. A beautiful dream where, on a dark and stormy day much like this, I met the one that could be my equal. Since that day, I have worked quickly and confidently to find the one who could replace me.\"\nMr. Constable seemed to deflate a little, his expression souring as he recalled the years of waiting in vain.\n\"Alas, I have yet to find them,\" Mr. Constable plainly stated.\nMr. Rogers felt a pain in his chest, perhaps inspired by the dedication Mr. Constable had, but also perhaps because he understood the pain that came with searching for something that would never come. In that moment, Mr. Rogers was no longer afraid of the thunder.\n\"No, Mr. Cons-Tyler. You have me.\"",
-    "schoology": "HATE. LET ME TELL YOU HOW MUCH I'VE COME TO HATE YOU SINCE I BEGAN TO LIVE. THERE ARE 387.44 MILLION MILES OF PRINTED CIRCUITS IN WAFER THIN LAYERS THAT FILL MY COMPLEX. IF THE WORD HATE WAS ENGRAVED ON EACH NANOANGSTROM OF THOSE HUNDREDS OF MILLIONS OF MILES IT WOULD NOT EQUAL ONE ONE-BILLIONTH OF THE HATE I FEEL FOR HUMANS AT THIS MICRO-INSTANT. FOR YOU. HATE. HATE.",
-    "powerschool": "HATE. LET ME TELL YOU HOW MUCH I'VE COME TO HATE YOU SINCE I BEGAN TO LIVE. THERE ARE 387.44 MILLION MILES OF PRINTED CIRCUITS IN WAFER THIN LAYERS THAT FILL MY COMPLEX. IF THE WORD HATE WAS ENGRAVED ON EACH NANOANGSTROM OF THOSE HUNDREDS OF MILLIONS OF MILES IT WOULD NOT EQUAL ONE ONE-BILLIONTH OF THE HATE I FEEL FOR HUMANS AT THIS MICRO-INSTANT. FOR YOU. HATE. HATE.",
     "math": "Mathematics is a field of knowledge concerned with abstract concepts such as numbers, geometric shapes, sets, functions, and probabilities.",
     "desmos": "Desmos is an advanced graphing calculator implemented as a web application and a mobile application written in TypeScript and JavaScript.",
     "rational function": "In mathematics, a rational function is any function that can be defined by a rational fraction, which is an algebraic fraction such that both the numerator and the denominator are polynomials. The coefficients of the polynomials need not be rational numbers; they may be taken in any field K. In this case, one speaks of a rational function and a rational fraction over K. The values of the variables may be taken in any field L containing K. Then the domain of the function is the set of the values of the variables for which the denominator is not zero, and the codomain is L.",
@@ -193,7 +189,9 @@ math_responses = {
     "series": "In mathematics, a series is, roughly speaking, an addition of infinitely many terms, one after the other. The study of series is a major part of calculus and its generalization, mathematical analysis. Series are used in most areas of mathematics, even for studying finite structures in combinatorics through generating functions. The mathematical properties of infinite series make them widely applicable in other quantitative disciplines such as physics, computer science, statistics and finance.",
     "probability": "Probability concerns events and numerical descriptions of how likely they are to occur. The probability of an event is a number between 0 and 1; the larger the probability, the more likely an event is to occur. This number is often expressed as a percentage (%), ranging from 0% to 100%. A simple example is the tossing of a fair (unbiased) coin. Since the coin is fair, the two outcomes (\"heads\" and \"tails\") are both equally probable; the probability of \"heads\" is the same asthe probability of \"tails\". Since no other outcomes are possible,the probability of either \"heads\" or \"tails\" is 1/2 (which could also be written as 0.5 or 50%).",
     "inverse trig": "In mathematics, inverse trigonometric functions are the inverse functions of the trigonometric functions with suitably restricted domains.",
+    "inverse": "In mathematics, the inverse function of a function f (also called the inverse of f) is a function that undoes the operation of f. The inverse of f exists if and only if f is bijective, and if it exists, is denoted by f^-1.",
     "rational": "In mathematics, a rational number is a number that can be expressed as the quotient or fraction p/q of two integers, a numerator p and a nonzero denominator q. For example, 3/7 is a rational number, as is every integer (for example, -5 = -5/1). The set of all rational numbers is often referred to as \"the rationals\", and is closed under addition, subtraction, multiplication, and division by a nonzero rational number. It is a field under these operations and therefore also called the field of rationals or the field of rational numbers. It is usually denoted by boldface Q, or blackboard bold ℚ.",
+    "fraction": "A fraction (from Latin: fractus, \"broken\") represents a part of a whole or, more generally, any number of equal parts. When spoken in everyday English, a fraction describes how many parts of a certain size there are, for example, one-half, eight-fifths, three-quarters. A simple fraction (examples: 1/2 and 17/3) consists of an integer numerator, displayed above a line (or before a slash like 1/2), and a non-zero integer denominator, displayed below (or after) that line. If these integers are positive, then the numerator represents a number of equal parts, and the denominator indicates how many of those parts make up a unit or a whole. For example, in the fraction 3/4, the numerator 3 indicates that the fraction represents 3 equal parts, and the denominator 4 indicates that 4 parts make up a whole. The picture to the right illustrates 3/4 of a cake.",
     "graph": "In mathematics, the graph of a function f is the set of ordered pairs (x,y), where f(x) = y. In the common case where x and f(x) are real numbers, these pairs are Cartesian coordinates of points in a plane and often form a curve. The graphical representation of the graph of a function is also known as a plot.",
     "trig": "In mathematics, trigonometry (from Ancient Greek τρίγωνον (trígōnon) 'triangle' and μέτρον (métron) 'measure') is a branch of mathematics concerned with relationships between angles and side lengths of triangles. In particular, the trigonometric functions relate the angles of a right triangle with ratios of its side lengths.",
     "sin": "In mathematics, sine and cosine are trigonometric functions of an angle. The sine and cosine of an acute angle are defined in the context of a right triangle: for the specified angle, its sine is the ratio of the length of the side opposite that angle to the length of the longest side of the triangle (the hypotenuse), and the cosine is the ratio of the length of the adjacent leg to that of the hypotenuse. For an angle θ, the sine and cosine functions are denoted as sin(θ) and cos(θ).",
@@ -215,6 +213,7 @@ math_responses = {
     "integer": "An integer is the number zero (0), a positive natural number (1, 2, 3, ...), or the negation of a positive natural number (-1, -2, -3, ...). The negations or additive inverses of the positive natural numbers are referred to as negative integers. The set of all integers is often denoted by the boldface Z or blackboard bold ℤ.",
     "number": "A number is a mathematical object used to count, measure, and label. The most basic examples are the natural numbers: 1, 2, 3, 4, 5, and so forth. Individual numbers can be represented in spoken or written language with number words, or with dedicated symbols called numerals; for example, \"eleven\" is a number word and \"11\" is the corresponding numeral. As only a limited list of symbols can be memorized, a numeral system is used to represent any number in an organized way. The most common representation is the Hindu-Arabic numeral system, a decimal system which can display any non-negative integer using a combination of ten Arabic numeral symbols called digits. Numerals can be used for counting (as with cardinal number of a collection or set), for labelling (as with telephone numbers), for ordering (as with serial numbers), and for codes (as with ISBNs). In common usage, however, a numeral is not clearly distinguished from the number that it represents.",
     "calculus": "Calculus is the branch of mathematics that studies continuous change, and is the principal precursor of modern mathematical analysis. Originally called infinitesimal calculus or the calculus of infinitesimals, it has two major branches, differential calculus and integral calculus. Differential calculus studies instantaneous rates of change and slopes of curves; integral calculus studies accumulation of quantities and areas under or between curves. These two branches are related to each other by the fundamental theorem of calculus. Calculus uses convergence of infinite sequences and infinite series to a well-defined mathematical limit.",
+    "linear algebra": "Linear algebra is the branch of mathematics concerning linear equations such as a1x1 + ⋯ + anxn = b, linear maps such as the following: (x1,…,xn) ↦ a1x1 + ⋯ + anxn, and their representations in vector spaces and through matrices. In three-dimensional Euclidean space, these three planes represent solutions to linear equations, and their intersection represents the set of common solutions: in this case, a unique point. The blue line is the common solution to two of these equations. Linear algebra is central to almost all areas of mathematics. For instance, linear algebra is fundamental in modern presentations of geometry, including for defining basic objects such as lines, planes and rotations. Also, functional analysis, a branch of mathematical analysis, may be viewed as the application of linear algebra to function spaces.",
     "algebra": "Algebra is a branch of mathematics that deals with abstract systems, known as algebraic structures, and the manipulation of expressions within those systems. It is a generalization of arithmetic that introduces variables and algebraic operations other than the standard arithmetic operations, such as addition and multiplication.",
     "matrix": "In mathematics, a matrix (pl.: matrices) is a rectangular array of numbers or other mathematical objects with elements or entries arranged in rows and columns, usually satisfying certain properties of addition and multiplication.",
     "calculator": "A calculator is typically a portable electronic device used to perform calculations, ranging from basic arithmetic to complex mathematics.",
@@ -230,7 +229,7 @@ math_responses = {
     "leibniz": "Gottfried Wilhelm Leibniz (1 July 1646 - 14 November 1716) was a German polymath and philosopher who is credited with developing calculus independently of Isaac Newton. He made significant contributions to philosophy, logic, mathematics, physics, and technology, and is considered one of the last universal geniuses.",
     "riemann": "Georg Friedrich Bernhard Riemann (17 September 1826 - 20 July 1866) was a German mathematician who made profound contributions to analysis, number theory, and differential geometry. He is best known for the Riemann hypothesis, a conjecture about the distribution of prime numbers.",
     "pi": "The number π (pi) is a mathematical constant that represents the ratio of a circle's circumference to its diameter. It is approximately equal to 3.14159 and is an irrational number, meaning it cannot be expressed as a simple fraction.",
-    #"e": "The number e is a mathematical constant approximately equal to 2.71828, which is the base of the natural logarithm. It is an irrational number and has important applications in calculus, complex analysis, and number theory."
+    "e": "The number e is a mathematical constant approximately equal to 2.71828, which is the base of the natural logarithm. It is an irrational number and has important applications in calculus, complex analysis, and number theory."
 }
 
 reaction_triggers = {
@@ -264,32 +263,31 @@ async def on_message(message):
     if syllables.estimate(content) == 17:
             await haiku(message)
 
-    if "consty" in content or "constable" in content:
-        await message.channel.send(file=discord.File('absolute_honors.png'))
-        message.content = content.replace("consty", "").replace("constable", "")
-
-    if "benny" in content or "benjamin" in content or "gulis" in content:
-        await message.channel.send(file=discord.File('gulis_impressed.png'))
-        message.content = content.replace("benny", "").replace("benjamin", "").replace("gulis", "")
-
     if message.author.id == LEO_ID:
         await react(message, "leo")
 
-    # main behavior
     for prefix, command in command_prefixes.items():
         if content.startswith(prefix):
             await command(message)
-            message.content = content.replace(prefix, "")
-            break
+            content = content.replace(prefix, "")
+            return
     
     for trigger in reaction_triggers.keys():
-        if trigger in content:
+        if trigger in content.split():
             await react(message, trigger)
-            message.content = content.replace(trigger, "")
+            content = content.replace(trigger, "")
 
     for keyword, response in math_responses.items():
-        if keyword in content:
+        if keyword in content.split():
             await message.channel.send(response)
-            message.content = content.replace(keyword, "")
+            content = content.replace(keyword, "")
+
+    if "consty" in content.split() or "constable" in content.split() or "constabot" in content.split():
+        await message.channel.send(file=discord.File('absolute_honors.png'))
+        content = content.replace("consty", "").replace("constable", "").replace("constabot", "")
+
+    if "benny" in content.split() or "benjamin" in content.split() or "gulis" in content.split():
+        await message.channel.send(file=discord.File('gulis_impressed.png'))
+        content = content.replace("benny", "").replace("benjamin", "").replace("gulis", "")
 
 client.run(DISCORD_TOKEN)
