@@ -236,7 +236,11 @@ math_responses = {
 reaction_triggers = {
     "leo": "leo1",
     "scott": "scottie",
-    "tsa": "tsa"
+    "tsa": "tsa",
+    "ella": "ellamog",
+    "graham": "grahamknife",
+    "gilbert": "gilbow",
+    "maggie": "maggie"
 }
 
 async def react(message, trigger):
@@ -256,7 +260,7 @@ async def on_message(message):
         return
 
     content = message.content.lower()
-    
+
     if syllables.estimate(content) == 17:
             await haiku(message)
 
@@ -272,15 +276,15 @@ async def on_message(message):
         await react(message, "leo")
 
     # main behavior
-    for trigger in reaction_triggers.keys():
-        if trigger in content:
-            await react(message, trigger)
-            message.content = content.replace(trigger, "")
-
     for prefix, command in command_prefixes.items():
         if content.startswith(prefix):
             await command(message)
             break
+    
+    for trigger in reaction_triggers.keys():
+        if trigger in content:
+            await react(message, trigger)
+            message.content = content.replace(trigger, "")
 
     for keyword, response in math_responses.items():
         if keyword in content:
