@@ -8,6 +8,7 @@ import urllib.parse
 import syllables
 import base64
 from playwright.async_api import async_playwright
+from discord.ext import tasks
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
@@ -136,6 +137,68 @@ async def mg_command(message):
 
     else:
         await message.channel.send("Please provide a Magic Garden query after `!mg`")
+
+
+
+
+
+
+
+WEATHER_CHANNEL_NAME = "games"
+
+weather_exclamations = [
+    "Wow, it's {weather}!",
+    "Wow, it's really {weather} out there!",
+    "Hey everyone, it's {weather} right now!",
+    "Look outside, it's {weather}!", 
+]
+
+@tasks.loop(minutes=1)
+async def weather_announcements():
+    if random.randint(1, 3) != 1:  # we can change this to 1/10 later, just higher for testing
+        return
+
+    channel = discord.utils.get(client.get_all_channels(), name=WEATHER_CHANNEL_NAME)
+    if channel is None:
+        return
+
+    try:
+        shop_data = requests.get("https://magicgarden.gg/platform/v1/shops").json()
+        current_weather = shop_data["weather"]["current"]
+
+        if current_weather is None:
+            await channel.send("Wow, there's no weather outside!")
+        else:
+            weather_name = current_weather["name"].lower()
+            await channel.send(random.choice(weather_exclamations).format(weather=weather_name))
+    except Exception as e:
+        print(e)
+
+@weather_announcements.before_loop
+async def before_weather_announcements():
+    await client.wait_until_ready()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 async def choose_command(message):
     try:
@@ -273,6 +336,9 @@ async def react(message, trigger):
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')    
+    if not weather_announcements.is_running():
+        weather_announcements.start()
+
 
 @client.event
 async def on_message(message):
