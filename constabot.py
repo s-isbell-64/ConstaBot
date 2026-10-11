@@ -15,6 +15,7 @@ LEO_ID = os.getenv("LEO_ID")
 WA_APP_ID = os.getenv("WA_APP_ID")
 DESMOS_API_KEY = os.getenv("DESMOS_API_KEY")
 WEATHER_CHANNEL_NAME = "games"
+BANNED_USERS = (os.getenv("GILBERT_ID"), os.getenv("BRYAN_ID"))
 
 client = discord.Client(intents=discord.Intents.all())
 
@@ -139,9 +140,9 @@ weather_exclamations = [
     "Look outside, it's {weather}!", 
 ]
 
-@tasks.loop(minutes=1)
+@tasks.loop(minutes=5)
 async def weather_announcements():
-    if random.randint(1, 10) != 1:
+    if random.randint(1, 20) != 1:
         return
 
     channel = discord.utils.get(client.get_all_channels(), name=WEATHER_CHANNEL_NAME)
@@ -225,6 +226,8 @@ command_prefixes = {
 math_responses = {
     "shiv": f"<@{os.getenv("SHIV_ID")}>",
     "game": "You just lost the game",
+    "thank you": "You're welcome!",
+    "thanks": "You're welcome!",
     "rogers": "It was a rather cold day at State High. The winds were roaring as a thunderstorm beat down on the school. Mr. Rogers hated the rain. It constantly reminded of his life before he met him.\nBOOM! Lightning struck, a blinding white flash causing everyone in the classroom to involuntarily close their eyes for a moment. Everyone except Mr. Constable.\n\"Mr. Constable, how is it that you never fear thunder?\" Mr. Rogers asked, peeking out from under his desk.\n\"Why do I not fear thunder? Because of a dream I had many years ago.\"\n\"A dream?\"\"Yes. A dream. A beautiful dream where, on a dark and stormy day much like this, I met the one that could be my equal. Since that day, I have worked quickly and confidently to find the one who could replace me.\"\nMr. Constable seemed to deflate a little, his expression souring as he recalled the years of waiting in vain.\n\"Alas, I have yet to find them,\" Mr. Constable plainly stated.\nMr. Rogers felt a pain in his chest, perhaps inspired by the dedication Mr. Constable had, but also perhaps because he understood the pain that came with searching for something that would never come. In that moment, Mr. Rogers was no longer afraid of the thunder.\n\"No, Mr. Cons-Tyler. You have me.\"",
     "math": "Mathematics is a field of knowledge concerned with abstract concepts such as numbers, geometric shapes, sets, functions, and probabilities.",
     "desmos": "Desmos is an advanced graphing calculator implemented as a web application and a mobile application written in TypeScript and JavaScript.",
@@ -243,7 +246,9 @@ math_responses = {
     "graph": "In mathematics, the graph of a function f is the set of ordered pairs (x,y), where f(x) = y. In the common case where x and f(x) are real numbers, these pairs are Cartesian coordinates of points in a plane and often form a curve. The graphical representation of the graph of a function is also known as a plot.",
     "trig": "In mathematics, trigonometry (from Ancient Greek τρίγωνον (trígōnon) 'triangle' and μέτρον (métron) 'measure') is a branch of mathematics concerned with relationships between angles and side lengths of triangles. In particular, the trigonometric functions relate the angles of a right triangle with ratios of its side lengths.",
     "sin": "In mathematics, sine and cosine are trigonometric functions of an angle. The sine and cosine of an acute angle are defined in the context of a right triangle: for the specified angle, its sine is the ratio of the length of the side opposite that angle to the length of the longest side of the triangle (the hypotenuse), and the cosine is the ratio of the length of the adjacent leg to that of the hypotenuse. For an angle θ, the sine and cosine functions are denoted as sin(θ) and cos(θ).",
+    "sine": "In mathematics, sine and cosine are trigonometric functions of an angle. The sine and cosine of an acute angle are defined in the context of a right triangle: for the specified angle, its sine is the ratio of the length of the side opposite that angle to the length of the longest side of the triangle (the hypotenuse), and the cosine is the ratio of the length of the adjacent leg to that of the hypotenuse. For an angle θ, the sine and cosine functions are denoted as sin(θ) and cos(θ).",
     "cos": "In mathematics, sine and cosine are trigonometric functions of an angle. The sine and cosine of an acute angle are defined in the context of a right triangle: for the specified angle, its sine is the ratio of the length of the side opposite that angle to the length of the longest side of the triangle (the hypotenuse), and the cosine is the ratio of the length of the adjacent leg to that of the hypotenuse. For an angle θ, the sine and cosine functions are denoted as sin(θ) and cos(θ).",
+    "cosine": "In mathematics, sine and cosine are trigonometric functions of an angle. The sine and cosine of an acute angle are defined in the context of a right triangle: for the specified angle, its sine is the ratio of the length of the side opposite that angle to the length of the longest side of the triangle (the hypotenuse), and the cosine is the ratio of the length of the adjacent leg to that of the hypotenuse. For an angle θ, the sine and cosine functions are denoted as sin(θ) and cos(θ).",
     "complex": "In mathematics, a complex number is an element of a number system that extends the real numbers with a specific element denoted i, called the imaginary unit and satisfying the equation i^2 = -1. Since no real number satisfies the above equation, i was called an imaginary number by René Descartes. Every complex number can be expressed in the form a+bi, where a and b are real numbers, a is called the real part, and b is called the imaginary part. The set of complex numbers is denoted by either of the symbols ℂ or C. Despite the historical nomenclature, \"imaginary\" numbers are not fictitious: they are no less real mathematically than real numbers, and they are essential to the scientific description of the physical world.",
     "imaginary": "An imaginary number is the product of a real number and the imaginary unit i, which is defined by its property i^2 =-1. The square of an imaginary number bi is -b^2. For example, 5i is an imaginary number, and its square is -25. The number zero is considered to be both real and imaginary.",
     "polar": "In mathematics, the polar coordinate system specifies a given point in a plane by using a distance and an angle as its two coordinates. These are the point's distance from a reference point called the pole, and the point's direction from the pole relative to the direction of the polar axis, a ray drawn from the pole. The distance from the pole is called the radial coordinate, radial distance or simply radius, and the angle is called the angular coordinate, polar angle, or azimuth. The pole is analogous to the origin in a Cartesian coordinate system.",
@@ -306,16 +311,16 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author == client.user or message.author in BANNED_USERS:
         return
 
     content = message.content.lower()
 
-    if syllables.estimate(content) == 17:
-        await haiku(message)
-
     if message.author.id == LEO_ID:
         await react(message, "leo")
+
+    if syllables.estimate(content) == 17:
+        await haiku(message)
 
     for prefix, command in command_prefixes.items():
         if content.startswith(prefix):
