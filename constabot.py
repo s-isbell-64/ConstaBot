@@ -4,7 +4,6 @@ import io
 from dotenv import load_dotenv
 import requests
 import discord
-import urllib.parse
 import syllables
 import base64
 from playwright.async_api import async_playwright
@@ -15,6 +14,7 @@ DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 LEO_ID = os.getenv("LEO_ID")
 WA_APP_ID = os.getenv("WA_APP_ID")
 DESMOS_API_KEY = os.getenv("DESMOS_API_KEY")
+WEATHER_CHANNEL_NAME = "games"
 
 client = discord.Client(intents=discord.Intents.all())
 
@@ -63,25 +63,19 @@ async def wa_command(message):
     wa_query = message.content.lower().replace("!wa", "").strip()
     if wa_query:
         try:
-            query = urllib.parse.quote_plus(wa_query)
-            query_url = f"http://api.wolframalpha.com/v2/query?" \
-            f"appid={WA_APP_ID}" \
-            f"&input={query}" \
-            f"&format=plaintext" \
-            f"&output=json"
-
-            r = requests.get(query_url).json()
-            data = r["queryresult"]["pods"][1]["subpods"][0]
-            if "datasources" in data:
-                datasource = ", ".join(data["datasources"])
-            else:
-                datasource = "N/A"
-            if "microsources" in data:
-                microsource = ", ".join(data["microsources"])
-            else:
-                microsource = "N/A"
-            plaintext = data["plaintext"]
-            await message.channel.send(f"Result:\n{plaintext}\n\nDatasources: {datasource}\nMicrosources: {microsource}")
+            url = f"https://api.wolframalpha.com/v2/query?"\
+                f"input={wa_query}"\
+                f"&appid={WA_APP_ID}"\
+                f"&format=plaintext&output=json"
+            response = requests.get(url)
+            r = response.json()
+            for pod in r["queryresult"]["pods"]:
+                title = pod["title"]
+                data = pod["subpods"][0]
+                plaintext = data.get("plaintext")
+                if plaintext:
+                    await message.channel.send(f"{title}:\n{plaintext}")
+                    
         except Exception as e:
             print(e)
             await message.channel.send(f"Error: {e}")
@@ -138,14 +132,6 @@ async def mg_command(message):
     else:
         await message.channel.send("Please provide a Magic Garden query after `!mg`")
 
-
-
-
-
-
-
-WEATHER_CHANNEL_NAME = "games"
-
 weather_exclamations = [
     "Wow, it's {weather}!",
     "Wow, it's really {weather} out there!",
@@ -155,7 +141,7 @@ weather_exclamations = [
 
 @tasks.loop(minutes=1)
 async def weather_announcements():
-    if random.randint(1, 3) != 1:  # we can change this to 1/10 later, just higher for testing
+    if random.randint(1, 10) != 1:
         return
 
     channel = discord.utils.get(client.get_all_channels(), name=WEATHER_CHANNEL_NAME)
@@ -177,28 +163,6 @@ async def weather_announcements():
 @weather_announcements.before_loop
 async def before_weather_announcements():
     await client.wait_until_ready()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 async def choose_command(message):
     try:
@@ -259,7 +223,7 @@ command_prefixes = {
 }
 
 math_responses = {
-    "shiv": f"@{os.getenv("SHIV_ID")}",
+    "shiv": f"<@{os.getenv("SHIV_ID")}>",
     "game": "You just lost the game",
     "rogers": "It was a rather cold day at State High. The winds were roaring as a thunderstorm beat down on the school. Mr. Rogers hated the rain. It constantly reminded of his life before he met him.\nBOOM! Lightning struck, a blinding white flash causing everyone in the classroom to involuntarily close their eyes for a moment. Everyone except Mr. Constable.\n\"Mr. Constable, how is it that you never fear thunder?\" Mr. Rogers asked, peeking out from under his desk.\n\"Why do I not fear thunder? Because of a dream I had many years ago.\"\n\"A dream?\"\"Yes. A dream. A beautiful dream where, on a dark and stormy day much like this, I met the one that could be my equal. Since that day, I have worked quickly and confidently to find the one who could replace me.\"\nMr. Constable seemed to deflate a little, his expression souring as he recalled the years of waiting in vain.\n\"Alas, I have yet to find them,\" Mr. Constable plainly stated.\nMr. Rogers felt a pain in his chest, perhaps inspired by the dedication Mr. Constable had, but also perhaps because he understood the pain that came with searching for something that would never come. In that moment, Mr. Rogers was no longer afraid of the thunder.\n\"No, Mr. Cons-Tyler. You have me.\"",
     "math": "Mathematics is a field of knowledge concerned with abstract concepts such as numbers, geometric shapes, sets, functions, and probabilities.",
