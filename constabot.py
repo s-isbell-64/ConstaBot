@@ -1,41 +1,62 @@
 import os
 import random
+import io
 from dotenv import load_dotenv
 import requests
 import discord
-import PyDesmos
 import urllib.parse
 import syllables
-from html2image import Html2Image
+import base64
+from playwright.async_api import async_playwright
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 LEO_ID = os.getenv("LEO_ID")
 WA_APP_ID = os.getenv("WA_APP_ID")
+DESMOS_API_KEY = os.getenv("DESMOS_API_KEY")
 
 client = discord.Client(intents=discord.Intents.all())
 
+DESMOS_HTML = f"""<!DOCTYPE html>
+<html><head>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey={DESMOS_API_KEY}"></script>
+</head>
+<body style="margin:0">
+<div id="calc" style="width:900px;height:600px"></div>
+</body></html>"""
+SCREENSHOT_JS = """
+(exprs) => new Promise((resolve) => {
+    const calc = Desmos.GraphingCalculator(
+        document.getElementById('calc')
+    );
+    exprs.forEach((latex, i) => calc.setExpression({ id: 'e' + i, latex: latex }));
+    calc.asyncScreenshot(
+        { width: 900, height: 600, targetPixelRatio: 2 },
+        (dataUri) => resolve(dataUri)
+    );
+})"""
+
 async def graph_command(message):
-    graph_expressions = message.content.lower().replace("!graph", "").strip().split(";")
-    if graph_expressions:
-        try:
-            G = PyDesmos.Graph()
-            for graph_expression in graph_expressions:
-                G.append(graph_expression)
-            G.save()
-
-            hti = Html2Image()
-            hti.screenshot(html_file='temp.html', save_as='out.png')
-
-            await message.channel.send(file=discord.File('out.png'))
-            os.remove('temp.html')
-            os.remove('out.png')
-        except Exception as e:
-            print(e)
-            await message.channel.send(f"Error: {e}")
-    else:
+    graph_expressions = [
+        e.strip() for e in message.content.lower().replace("!graph", "").split(";") if e.strip()
+    ]
+    if not graph_expressions:
         await message.channel.send("Please provide a mathematical expression to graph after `!graph`")
-    message.content = message.content.lower().replace("!graph", "")
+        return
+
+    try:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch()
+            page = await browser.new_page(viewport={"width": 900, "height": 600})
+            await page.set_content(DESMOS_HTML, wait_until="load")
+            data_uri = await page.evaluate(SCREENSHOT_JS, graph_expressions)
+            await browser.close()
+
+        png_bytes = base64.b64decode(data_uri.split(",", 1)[1])
+        await message.channel.send(file=discord.File(io.BytesIO(png_bytes), filename="graph.png"))
+    except Exception as e:
+        print(e)
+        await message.channel.send(f"Error: {e}")    
 
 async def wa_command(message):
     wa_query = message.content.lower().replace("!wa", "").strip()
@@ -175,7 +196,7 @@ command_prefixes = {
 }
 
 math_responses = {
-    "shiv": "@shiv",
+    "shiv": f"@{os.getenv("SHIV_ID")}",
     "game": "You just lost the game",
     "rogers": "It was a rather cold day at State High. The winds were roaring as a thunderstorm beat down on the school. Mr. Rogers hated the rain. It constantly reminded of his life before he met him.\nBOOM! Lightning struck, a blinding white flash causing everyone in the classroom to involuntarily close their eyes for a moment. Everyone except Mr. Constable.\n\"Mr. Constable, how is it that you never fear thunder?\" Mr. Rogers asked, peeking out from under his desk.\n\"Why do I not fear thunder? Because of a dream I had many years ago.\"\n\"A dream?\"\"Yes. A dream. A beautiful dream where, on a dark and stormy day much like this, I met the one that could be my equal. Since that day, I have worked quickly and confidently to find the one who could replace me.\"\nMr. Constable seemed to deflate a little, his expression souring as he recalled the years of waiting in vain.\n\"Alas, I have yet to find them,\" Mr. Constable plainly stated.\nMr. Rogers felt a pain in his chest, perhaps inspired by the dedication Mr. Constable had, but also perhaps because he understood the pain that came with searching for something that would never come. In that moment, Mr. Rogers was no longer afraid of the thunder.\n\"No, Mr. Cons-Tyler. You have me.\"",
     "math": "Mathematics is a field of knowledge concerned with abstract concepts such as numbers, geometric shapes, sets, functions, and probabilities.",
@@ -261,7 +282,7 @@ async def on_message(message):
     content = message.content.lower()
 
     if syllables.estimate(content) == 17:
-            await haiku(message)
+        await haiku(message)
 
     if message.author.id == LEO_ID:
         await react(message, "leo")
@@ -269,7 +290,6 @@ async def on_message(message):
     for prefix, command in command_prefixes.items():
         if content.startswith(prefix):
             await command(message)
-            content = content.replace(prefix, "")
             return
     
     for trigger in reaction_triggers.keys():
